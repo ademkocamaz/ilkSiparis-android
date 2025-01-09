@@ -32,18 +32,21 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             IlkSiparisTheme {
-                ilkSiparisView()
+                Scaffold {innerPadding->
+                    ilkSiparisView(modifier = Modifier.padding(innerPadding))
+                }
+
             }
         }
     }
 }
 
 @Composable
-fun ilkSiparisView() {
+fun ilkSiparisView(modifier: Modifier=Modifier) {
     val activity = LocalView.current.context as Activity
     val isFullScreen = remember { mutableStateOf(false) }
 
-    Box(Modifier.fillMaxSize()) {
+    Box(modifier = modifier) {
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = {
@@ -71,13 +74,7 @@ fun ilkSiparisView() {
                             this.customView = null
                         }
                     }
-                    loadDataWithBaseURL(
-                        "http://77.245.150.206:11408/",
-                        "<iframe height='100%' width='100%' src='http://77.245.150.206:11408/' frameborder='0' allowfullscreen></iframe>",
-                        "text/html",
-                        "UTF-8",
-                        null
-                    )
+                    loadUrl("http://77.245.150.206:11408/")
                 }
             }
         )
