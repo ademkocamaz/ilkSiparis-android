@@ -56,4 +56,10 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    //AdMob
+    implementation(libs.play.services.ads)
+
+    //SplashScreen
+    implementation(libs.core.splashscreen)
 }

@@ -24,15 +24,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import ilkadam.ilksiparis.ui.theme.IlkSiparisTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        InterstitialAd.load(this,"ca-app-pub-5764318432941968/4519905955", AdRequest.Builder().build(), object : InterstitialAdLoadCallback() {
+            override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                interstitialAd.show(this@MainActivity)
+            }
+        })
+
         setContent {
             IlkSiparisTheme {
-                Scaffold {innerPadding->
+                Scaffold(
+                    bottomBar = {
+                        AdMobBanner()
+                    }) { innerPadding ->
                     ilkSiparisView(modifier = Modifier.padding(innerPadding))
                 }
 
@@ -42,43 +55,25 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun ilkSiparisView(modifier: Modifier=Modifier) {
+fun ilkSiparisView(modifier: Modifier = Modifier) {
     val activity = LocalView.current.context as Activity
     val isFullScreen = remember { mutableStateOf(false) }
 
     Box(modifier = modifier) {
         AndroidView(
             modifier = Modifier.fillMaxSize(),
-            factory = {
-                WebView(it).apply {
-                    settings.javaScriptEnabled = true
-                    webViewClient = WebViewClient()
-                    webChromeClient = object : WebChromeClient() {
-                        var customView: View? = null
-                        override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
-                            super.onShowCustomView(view, callback)
-                            isFullScreen.value = true
-                            if (this.customView != null) {
-                                onHideCustomView()
-                                return
-                            }
-                            this.customView = view
-                            (activity.window.decorView as FrameLayout).addView(this.customView, FrameLayout.LayoutParams(
-                                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
-                        }
-
-                        override fun onHideCustomView() {
-                            super.onHideCustomView()
-                            isFullScreen.value = false
-                            (activity.window.decorView as FrameLayout).removeView(this.customView)
-                            this.customView = null
-                        }
-                    }
-                    loadUrl("http://77.245.150.206:11408/")
+            factory = { context ->
+                WebView(context).apply {
+                    this.settings.javaScriptEnabled = true
+                    this.webViewClient = WebViewClient()
                 }
+            },
+            update = { webView ->
+                webView.loadUrl("http://77.245.150.206:11408/")
             }
         )
 
     }
-    activity.requestedOrientation = if (isFullScreen.value) ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE else ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+    activity.requestedOrientation =
+        if (isFullScreen.value) ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE else ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 }
