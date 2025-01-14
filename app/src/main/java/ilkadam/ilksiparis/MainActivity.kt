@@ -56,24 +56,26 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun ilkSiparisView(modifier: Modifier = Modifier) {
-    val activity = LocalView.current.context as Activity
-    val isFullScreen = remember { mutableStateOf(false) }
-
+    val url="http://77.245.150.206:11408/"
     Box(modifier = modifier) {
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = { context ->
                 WebView(context).apply {
+                    layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                    )
                     this.settings.javaScriptEnabled = true
                     this.webViewClient = WebViewClient()
+                    this.webChromeClient = WebChromeClient()
+                    this.loadUrl(url)
                 }
             },
             update = { webView ->
-                webView.loadUrl("http://77.245.150.206:11408/")
+                webView.loadUrl(url)
             }
         )
 
     }
-    activity.requestedOrientation =
-        if (isFullScreen.value) ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE else ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 }
